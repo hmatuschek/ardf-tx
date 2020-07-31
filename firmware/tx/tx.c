@@ -1,4 +1,4 @@
-#include "trx.h"
+#include "tx.h"
 #include "keyer.h"
 #include "temp.h"
 #include "clock.h"
@@ -12,6 +12,8 @@
 
 volatile TRXState _state;
 
+#define ID_SPEED     2
+#define CALL_SPEED   10
 #define ID_LEN       4
 #define CALL_LEN     7
 #define TEMP_ERR_LEN 9
@@ -39,7 +41,7 @@ void trx_init() {
   TRX_LED_PORT &= ~(1 << TRX_LED_BIT);
 
   clock_init();
-  keyer_init(2);
+  keyer_init(ID_SPEED);
   temp_init();
   button_init();
 
@@ -97,8 +99,8 @@ void trx_rx()
 
 void trx_poll() {
   // If Brown-out reset -> goto error state!
-  if (MCUSR & (1 << BORF))
-    trx_error(TRX_ERR_VOL);
+  //if (MCUSR & (1 << BORF))
+  //  trx_error(TRX_ERR_VOL);
 
   // Check temperature
   if (temp() > 60)
@@ -113,6 +115,7 @@ void trx_poll() {
       clock_reset();
       _state = (TRX_WAIT | TRX_TX_ID);
       // Start sending ID
+      keyer_set_speed_idx(ID_SPEED);
       keyer_send_text(ID[1], ID_LEN);
     }
     // Done for IDLE state
@@ -123,19 +126,21 @@ void trx_poll() {
     return;
   }
   if (b && (TRX_TX == (TRX_STATE_MASK & _state))) {
-    _state = TRX_WAIT;
+    _state = (TRX_WAIT | (TRX_TX_MASK & _state));
     return;
   }
 
   // TX sequencing...
   if (TRX_TX_ID == (TRX_TX_MASK & _state)) {
     if ((KEYER_IDLE == keyer_state()) && (clock() < 50)) {
+      keyer_set_speed_idx(ID_SPEED);
       keyer_send_text(ID[1], ID_LEN);
     }
     if (clock() >= 50) {
       clock_restart();
       keyer_stop();
       _state = ( (TRX_STATE_MASK & _state) | TRX_TX_CALL );
+      keyer_set_speed_idx(CALL_SPEED);
       keyer_send_text(CALL, CALL_LEN);
     }
   } else if (TRX_TX_CALL == (TRX_TX_MASK & _state)) {
@@ -172,6 +177,7 @@ void trx_poll() {
 void trx_error(TRXState err) {
   keyer_stop(); trx_rx();
   _state = (TRX_ERROR | (TRX_ERR_MASK & err));
+  keyer_set_speed_idx(ID_SPEED);
 
   while (1) {
     if ((KEYER_IDLE == keyer_state()) && (TRX_ERR_TEMP == (TRX_ERR_MASK & _state)))

@@ -1,5 +1,5 @@
 #include "keyer.h"
-#include "trx.h"
+#include "tx.h"
 #include <avr/pgmspace.h>
 
 /// Keep the delay short

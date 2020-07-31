@@ -191,6 +191,8 @@ function(add_avr_executable EXECUTABLE_NAME)
    set(map_file ${EXECUTABLE_NAME}${MCU_TYPE_FOR_FILENAME}.map)
    set(eeprom_image ${EXECUTABLE_NAME}${MCU_TYPE_FOR_FILENAME}-eeprom.hex)
 
+   message(STATUS "Executable ${EXECUTABLE_NAME}")
+
    # elf file
    add_executable(${elf_file} EXCLUDE_FROM_ALL ${ARGN})
 
@@ -252,7 +254,7 @@ function(add_avr_executable EXECUTABLE_NAME)
    # upload eeprom only - with avrdude
    # see also bug http://savannah.nongnu.org/bugs/?40142
    add_custom_target(
-      upload_eeprom
+      upload_${EXECUTABLE_NAME}_eeprom
       ${AVR_UPLOADTOOL} -p ${AVR_MCU} -c ${AVR_PROGRAMMER} ${AVR_UPLOADTOOL_OPTIONS}
          -U eeprom:w:${eeprom_image}
          -P ${AVR_UPLOADTOOL_PORT}

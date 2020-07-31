@@ -1,4 +1,4 @@
-#include "trx.h"
+#include "tx.h"
 
 #include <avr/interrupt.h>
 #include <util/delay.h>

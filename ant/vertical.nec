@@ -1,0 +1,9 @@
+CE ARDF Beacon loaded vertical antenna
+GW 0 20 0.0 0.0 0.0 0.0 0.0 7.0 0.4e-3
+GE 2
+GN 0 0 0 0 6. 1.000E-03
+FR 0 1 0 0 3.579
+EX 0 0 1 0 1.
+LD 0 0 2 2 0 50e-6 100e-9
+XQ 0
+EN
