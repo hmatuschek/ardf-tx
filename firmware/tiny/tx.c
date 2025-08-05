@@ -3,16 +3,14 @@
 #include "temp.h"
 #include "clock.h"
 #include "button.h"
+#include "config.h"
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
-#include <avr/eeprom.h>
-#include <string.h>
 
 volatile TRXState _state;
 
-#define ID_IDX       5 // <- MO5
 #define ID_SPEED     2
 #define CALL_SPEED   10
 #define ID_LEN       4
@@ -106,7 +104,7 @@ void trx_poll() {
       _state = (TRX_TX | TRX_TX_ID);
       // Start sending ID
       keyer_set_speed_idx(ID_SPEED);
-      keyer_send_text(ID[ID_IDX], ID_LEN);
+      keyer_send_text(ID[TRANSMITTER_ID_IDX], ID_LEN);
     }
     // Done for IDLE state
     return;
@@ -120,7 +118,7 @@ void trx_poll() {
   if (TRX_TX_ID == (TRX_TX_MASK & _state)) {
     if ((KEYER_IDLE == keyer_state()) && (clock() < 50)) {
       keyer_set_speed_idx(ID_SPEED);
-      keyer_send_text(ID[ID_IDX], ID_LEN);
+      keyer_send_text(ID[TRANSMITTER_ID_IDX], ID_LEN);
     }
     if (clock() >= 50) {
       clock_restart();

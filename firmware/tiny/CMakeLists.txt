@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8.8)
 project(tiny)
 
+
+option(TRANSMITTER_ID_IDX "Specifies the TX Id index. 0=MO, 1=MOE, ..., 5=MO5." "5")
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/../cmake)
 
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR})
@@ -18,12 +21,14 @@ set(MCU_SPEED 8000000UL)
 set(AVR_L_FUSE 0xE2)
 set(AVR_H_FUSE 0xDF)
 
+configure_file(config.h.in config.h)
 
 # Include avg-gcc toolchain
 include(generic-gcc-avr)
 INCLUDE_DIRECTORIES(${AVR_SYSTEM_INCLUDE_PATH})
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/../lib")
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/../tiny")
+INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR})
 
 # Typical options
 add_definitions("-DF_CPU=${MCU_SPEED}")
